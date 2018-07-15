@@ -2,13 +2,13 @@
 layout: post
 comments: true
 title: Analyser des paquets ISUP avec Wireshark
-accroche: Il y a quelques temps j'ai eu à analyser des journaux contenant des messages ISUP avec Wireshark. L'opération n'est pas triviale, mais une fois comprise elle est relativement simple à mettre en oeuvre dans un script. Le suite de cette article décrit les étapes nécessaires à la transformation d'un message MTP en un message SIGTRAN pour permettre son analyse par Wireshark.
+date: 2010-06-06
 categories:
  - Ruby
  - Protocol
  - SS7
 ---
-_{{ page.accroche }}_
+_Il y a quelques temps j'ai eu à analyser des journaux contenant des messages ISUP avec Wireshark. L'opération n'est pas triviale, mais une fois comprise elle est relativement simple à mettre en oeuvre dans un script. Le suite de cette article décrit les étapes nécessaires à la transformation d'un message MTP en un message SIGTRAN pour permettre son analyse par Wireshark._
 
 Le décor
 --------
@@ -22,16 +22,16 @@ Acte premier
 
 Le message ci-dessous représente un paquet IAM (_Initial Address Message_) encapsulé dans son message MTP niveau 2 et 3. Pour simplifier nous partirons du principe que les messages sont présentés dans les journaux sous la forme suivante:
 
-{% highlight none %}
+{{< highlight none >}}
 0000  c0 c6 0b 85 e4 c8 6a 03 21 00 01 00 00 00 0a 03
 0010  02 09 07 83 90 21 43 65 87 09 0a 07 83 13 21 43
 0020  65 07 00 13 02 33 35 28 07 83 04 21 43 65 17 00
 0030  0b 07 83 14 21 43 65 17 00 00 08 54
-{% endhighlight none %}
+{{< / highlight >}}
 
 Le script Ruby, ci-dessous, prend sur son entrée standard des paquets dans ce format et les affiche sur sa sortie standard transformés en paquets M3UA (_Signaling System 7 (SS7) Message Transfer Part 3 (MTP3) - User Adaptation Layer_) dans le format attendu en entrée par _text2pcap_.
 
-{% highlight none ruby %}
+{{< highlight ruby >}}
 MTP_PREFIX = %w{01 00 01 01}
 PROTO_DATA = %w{00 02}
 
@@ -67,7 +67,7 @@ $stdin.each_line { |line|
   end
 }
 $stdout.puts "0000  #{create_pcap_text(data).join(" ")}"
-{% endhighlight none %}
+{{< / highlight >}}
 
 Acte deuxième
 -------------
@@ -80,7 +80,7 @@ qui peut alors être injectée à la commande `text2pcap -S 30,40,3 - /tmp/packe
 
 L'exécution de la commande précédente produit la sortie :
 
-{% highlight none %}
+{{< highlight none >}}
 Input from: Standard input
 Output to: /tmp/packet.pcap
 Generate dummy Ethernet header: Protocol: 0x800
@@ -89,7 +89,7 @@ Generate dummy SCTP header: Source port: 30. Dest port: 40. Tag: 0
 Generate dummy DATA chunk header: TSN: 0. SID: 0. SSN: 0. PPID: 3
 Wrote packet of 72 bytes at 0
 Read 1 potential packet, wrote 1 packet
-{% endhighlight none %}
+{{< / highlight >}}
 
 Comme indiqué par la sortie de la commande _text2pcap_ le paramètre `-S 30,40,3` a généré les entêtes Ethernet, IP et SCTP pour encapsuler le paquet M3UA construit à l'étape précédente. Le contenu de ces entêtes n'a, pour le plupart, pas d'importance dans la suite et sont choisis arbitrairement par _text2pcap_.
 
@@ -98,7 +98,7 @@ Acte troisième
 
 Finalement, il suffit de lire cette capture avec Wireshark (la version utilisée ici est la 1.2.9) ou sont équivalent en ligne de commande _tshark_. L'exécution de la commande `tshark -V -r /tmp/packet.pcap` produit :
 
-{% highlight none %}
+{{< highlight none >}}
 Frame 1 (134 bytes on wire, 134 bytes captured)
     Arrival Time: Jun 22, 2010 06:33:52.000000000
     [Time delta from previous captured frame: 0.000000000 seconds]
@@ -244,7 +244,7 @@ ISDN User Part
             .... 0000 = Address signal digit: 0 (0)
             ISUP Redirecting Number: 123456710
     End of optional parameters (0)
-{% endhighlight none %}
+{{< / highlight >}}
 
 Les parties non pertinentes ont été remplacées par des `[...]`. Le _Payload protocol identifier_ de l'entête SCTP à pour valeur _3_ ce qui indique que le contenu du paquet est un paquet M3UA. La valeur 3 provient du paramètre `-S30,40,3` qui défini une partie du contenu de l'entête SCTP du paquet.
 
