@@ -7,6 +7,8 @@ categories:
  - Virtual machine
  - Linux
  - Debian
+aliases:
+    - /2011/08/09/squeeze-64-vagrant-base-box-upgrade.html
 ---
 _After building a Vagrant base box, Vagrant 
  and Virtual Box updates incurred lots of upgrades. 

@@ -7,6 +7,8 @@ categories:
  - Virtual machine
  - Linux
  - Debian
+aliases:
+    - /2011/03/26/squeeze-64-vagrant-base-box.html
 ---
 _Lately I needed to test a project under Debian Squeeze 64 bit. I found several 32 bit boxes but no 64 bits. So I decided to build one of my own._
 
